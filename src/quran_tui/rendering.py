@@ -40,8 +40,17 @@ def normalize_azkar_text(text: str) -> str:
     if not text:
         return text
     # Some terminal/font stacks render ۝ badly and make it collide with Arabic text.
-    # Use a simpler separator for Azkar so the text remains readable everywhere.
-    return AYAH_SEPARATOR_RE.sub("  •  ", text).strip()
+    # Replace it with plain numbered markers like (1), (2), (3) for robust display.
+    parts = [part.strip() for part in AYAH_SEPARATOR_RE.split(text) if part.strip()]
+    if len(parts) <= 1:
+        return text.strip()
+
+    numbered: list[str] = []
+    for index, part in enumerate(parts, start=1):
+        if index > 1:
+            numbered.append(f"({index - 1})")
+        numbered.append(part)
+    return "  ".join(numbered).strip()
 
 
 def _transform_run(match: re.Match[str], mode: str) -> str:
