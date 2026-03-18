@@ -35,6 +35,7 @@ BASMALA_PREFIXES = (
     "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ",
 )
 AYAH_MARKER_RE = re.compile(r"\[\[AYAH:(\d+)\]\]")
+AZKAR_MARKER_RE = re.compile(r"\((\d+)\)")
 
 
 class KittyAyahRenderer:
@@ -408,7 +409,7 @@ class KittyAyahRenderer:
         text: str,
         font: ImageFont.FreeTypeFont,
     ) -> float:
-        return draw.textlength(text, font=font, direction="rtl", language="ar")
+        return _measure_rtl_text(draw, text, font)
 
     def _draw_line_with_markers(self, draw: ImageDraw.ImageDraw, right_x: int, y: int, text: str) -> None:
         parts: list[tuple[str, str]] = []
@@ -435,7 +436,7 @@ class KittyAyahRenderer:
                     direction="rtl",
                     language="ar",
                 )
-                x -= self._measure_plain_text(draw, value, self.text_font)
+                x -= _measure_rtl_text(draw, value, self.text_font)
             else:
                 label = f"({value})"
                 draw.text(
@@ -457,12 +458,12 @@ class KittyAyahRenderer:
         last_end = 0
         for match in AYAH_MARKER_RE.finditer(text):
             if match.start() > last_end:
-                width += self._measure_plain_text(draw, text[last_end:match.start()], font)
+                width += _measure_rtl_text(draw, text[last_end:match.start()], font)
             label = f"({match.group(1)})"
             width += draw.textlength(label, font=self.num_font) + draw.textlength(" ", font=self.num_font)
             last_end = match.end()
         if last_end < len(text):
-            width += self._measure_plain_text(draw, text[last_end:], font)
+            width += _measure_rtl_text(draw, text[last_end:], font)
         return width
 
 def _hex_to_rgba(value: str, alpha: int) -> tuple[int, int, int, int]:
@@ -602,7 +603,7 @@ class KittyAzkarRenderer:
             for line in wrapped:
                 if y + 40 > max_y:
                     break
-                draw.text((right_x, y), line, font=self.text_font, fill=text_color, anchor="ra", direction="rtl", language="ar")
+                self._draw_azkar_line(draw, right_x, y, line, text_color)
                 y += 40
             if item.note:
                 if y + 28 > max_y:
@@ -628,14 +629,68 @@ class KittyAzkarRenderer:
         current = words[0]
         for word in words[1:]:
             candidate = f"{current} {word}"
-            bbox = draw.textbbox((0, 0), candidate, font=font, direction="rtl", language="ar")
-            if bbox[2] - bbox[0] <= width_px:
+            if self._measure_azkar_text(draw, candidate, font) <= width_px:
                 current = candidate
             else:
                 lines.append(current)
                 current = word
         lines.append(current)
         return lines
+
+    def _draw_azkar_line(self, draw: ImageDraw.ImageDraw, right_x: int, y: int, text: str, color: str) -> None:
+        parts: list[tuple[str, str]] = []
+        last_end = 0
+        for match in AZKAR_MARKER_RE.finditer(text):
+            if match.start() > last_end:
+                parts.append(("text", text[last_end:match.start()]))
+            parts.append(("marker", match.group(1)))
+            last_end = match.end()
+        if last_end < len(text):
+            parts.append(("text", text[last_end:]))
+
+        x = float(right_x)
+        for kind, value in parts:
+            if kind == "text":
+                if not value:
+                    continue
+                draw.text(
+                    (x, y),
+                    value,
+                    font=self.text_font,
+                    fill=color,
+                    anchor="ra",
+                    direction="rtl",
+                    language="ar",
+                )
+                x -= self._measure_plain_text(draw, value, self.text_font)
+            else:
+                label = f"({value})"
+                draw.text(
+                    (x, y),
+                    label,
+                    font=self.ui_font_small,
+                    fill=color,
+                    anchor="ra",
+                )
+                x -= draw.textlength(label, font=self.ui_font_small) + draw.textlength(" ", font=self.ui_font_small)
+
+    def _measure_azkar_text(
+        self,
+        draw: ImageDraw.ImageDraw,
+        text: str,
+        font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+    ) -> float:
+        width = 0.0
+        last_end = 0
+        for match in AZKAR_MARKER_RE.finditer(text):
+            if match.start() > last_end:
+                width += self._measure_plain_text(draw, text[last_end:match.start()], font)
+            label = f"({match.group(1)})"
+            width += draw.textlength(label, font=self.ui_font_small) + draw.textlength(" ", font=self.ui_font_small)
+            last_end = match.end()
+        if last_end < len(text):
+            width += self._measure_plain_text(draw, text[last_end:], font)
+        return width
 
     def _refresh_theme_if_needed(self) -> None:
         now = time.monotonic()
@@ -668,3 +723,11 @@ def _load_font(path: str | None, size: int) -> ImageFont.FreeTypeFont | ImageFon
         except OSError:
             pass
     return ImageFont.load_default()
+
+
+def _measure_rtl_text(
+    draw: ImageDraw.ImageDraw,
+    text: str,
+    font: ImageFont.FreeTypeFont | ImageFont.ImageFont,
+) -> float:
+    return draw.textlength(text, font=font, direction="rtl", language="ar")
