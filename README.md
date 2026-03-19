@@ -22,33 +22,6 @@ NoorTerm is a terminal product for reading the Quran and Azkar with a calm TUI, 
 - Browser fallback mode from inside the app
 - Native packaging for Fedora/RPM, Debian/Ubuntu, and Arch
 
-## Run
-
-```bash
-python3 main.py
-```
-
-If `kitty` is installed, NoorTerm relaunches itself there automatically for the best Arabic rendering.
-
-You can also run:
-
-```bash
-./run-in-kitty.sh
-```
-
-Or install it locally:
-
-```bash
-python3 -m pip install -e .
-noorterm
-```
-
-The legacy entrypoint still works too:
-
-```bash
-quran-tui
-```
-
 ## GitHub Landing Page
 
 This repo includes a GitHub Pages-ready landing page at [docs/index.html](/home/user/GitHub/Ramadan_Project/docs/index.html) and a one-command installer at [install.sh](/home/user/GitHub/Ramadan_Project/install.sh).
@@ -69,7 +42,7 @@ The installer auto-detects:
 - Debian/Ubuntu: installs the latest `.deb`
 - Fedora/RHEL: installs the latest `.rpm`
 
-## Packaging
+## Build it by yourself
 
 Build the native package for the current distro with one command:
 
