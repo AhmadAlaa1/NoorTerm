@@ -22,9 +22,9 @@ NoorTerm is a terminal product for reading the Quran and Azkar with a calm TUI, 
 - Browser fallback mode from inside the app
 - Native packaging for Fedora/RPM, Debian/Ubuntu, and Arch
 
-## GitHub Landing Page
+## The official Website
 
-This repo includes a GitHub Pages-ready landing page at [docs/index.html](/home/user/GitHub/Ramadan_Project/docs/index.html) and a one-command installer at [install.sh](/home/user/GitHub/Ramadan_Project/install.sh).
+- https://ahmadalaa1.github.io/NoorTerm/
 
 GitHub repo:
 
