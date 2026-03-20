@@ -218,6 +218,14 @@
       }
 
       @media (max-width: 920px) {
+        .announcement {
+          padding: 10px 14px;
+        }
+
+        .brand {
+          padding: 18px 20px;
+        }
+
         .section-grid {
           grid-template-columns: 1fr;
         }
@@ -228,23 +236,78 @@
       }
 
       @media (max-width: 640px) {
+        .announcement {
+          font-size: 12px;
+          line-height: 1.5;
+        }
+
         .page {
           width: min(100% - 20px, 1240px);
-          padding-top: 24px;
+          padding: 24px 0 44px;
+        }
+
+        .brand {
+          padding: 14px 12px;
+          border-radius: 14px;
+          font-size: 8px;
+          text-align: left;
         }
 
         .tagline {
+          margin-top: 16px;
           font-size: 20px;
+          line-height: 1.45;
+        }
+
+        .actions {
+          margin-top: 22px;
+          gap: 10px;
         }
 
         .button {
           width: 100%;
+          min-width: 0;
+          padding: 13px 16px;
+        }
+
+        .preview {
+          margin-top: 28px;
+          padding: 12px;
+          border-radius: 14px;
+        }
+
+        .preview-shell {
+          border-radius: 12px;
         }
 
         .preview-window {
-          min-height: 320px;
+          min-height: 240px;
         }
 
+        .panel {
+          padding: 18px;
+          border-radius: 14px;
+        }
+
+        .panel h2 {
+          font-size: 18px;
+        }
+
+        .panel p,
+        .panel li {
+          font-size: 14px;
+          line-height: 1.65;
+        }
+
+        .code {
+          padding: 14px;
+          font-size: 13px;
+        }
+
+        .footer {
+          padding-top: 22px;
+          font-size: 13px;
+        }
       }
     </style>
   </head>
